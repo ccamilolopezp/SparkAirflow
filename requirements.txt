@@ -1,0 +1,6 @@
+apache-airflow-providers-common-compat==1.2.2
+apache-airflow-providers-apache-spark==4.11.3
+spacy
+textblob
+pandas
+pytest
