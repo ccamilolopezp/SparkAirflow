@@ -18,6 +18,9 @@ Este proyecto implementa un pipeline de datos utilizando Apache Airflow, Spark y
 - [PostgreSQL](https://www.postgresql.org/)
 - [Docker](https://www.docker.com/)
 - Python
+### Diagrama Arquitectura:
+[Diagrama Arquitectura.pdf](https://github.com/user-attachments/files/19221956/Diagrama.Arquitectura.pdf)
+![image](https://github.com/user-attachments/assets/80c46fa0-c04d-485a-bc6f-4fa8038df5b7)
 
 ## Instalación y configuración
 ### 1. Clonar el repositorio
