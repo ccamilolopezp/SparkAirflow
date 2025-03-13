@@ -46,10 +46,10 @@ Puedes conectarte a PostgreSQL utilizando herramientas como:
 - **Base de datos:** `postgres`
 
 #### Ejecutar script de creación de esquema
-El archivo `schema.sql` se encuentra en la carpeta `data`. Una vez conectado a la base de datos, ejecutar:
+El archivo `create_tables.sql` se encuentra en la carpeta `data`. Una vez conectado a la base de datos, ejecutar:
 ```sql
 \-- Abrir y ejecutar el script en el cliente SQL de tu elección
-\i data/schema.sql
+\i data/create_tables.sql
 ```
 
 ### 4. Acceder a la interfaz de Airflow
@@ -69,13 +69,9 @@ En la interfaz de Airflow, activar y ejecutar el DAG `spaceflight_news_pipeline`
 SparkAirflow/
 │── dags/                      # Definición de DAGs de Airflow
 │   ├── spaceflight_news_dag.py
-│── scripts/                   # Scripts de procesamiento
-│   ├── extraction.py
-│   ├── transformation.py
-│   ├── loading.py
-│── data/                      # Datos de entrada y esquemas
-│   ├── schema.sql             # Script de creación de base de datos
-│── config/                    # Configuraciones adicionales
+│── data/                      # Script SQL para crear tablas y queries de Analisis de tendencias
+│── include/                   # Contiene los Jobs de Spark y las carpetas donde se almacenan los procesamientos en local
+│── plugins/                   # Modulo de python para la extraccion y carga.
 │── Dockerfile                 # Configuración de imagen Docker
 │── requirements.txt           # Dependencias de Python
 │── README.md                  # Documentación del proyecto
