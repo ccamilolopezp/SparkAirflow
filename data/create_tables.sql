@@ -38,6 +38,7 @@ CREATE TABLE IF NOT EXISTS spacenews.fact_article (
 )
 PARTITION BY RANGE (published_at);
 
+--Se crean particiones para 2025 si se requiere años anteriores cambiar año y volver a ejecutar.
 DO $$ 
 DECLARE 
     year INT := 2025; -- CAMBIAR EL AÑO

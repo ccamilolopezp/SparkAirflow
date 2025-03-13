@@ -47,6 +47,7 @@ def extract_entities(df):
     
     extract_entities_udf = udf(extract_entities_from_text, ArrayType(StringType()))
     df = df.withColumn("entities", extract_entities_udf(col("summary")))
+    df = df.withColumn("entities", col("entities").cast(StringType()))
     
     return df.select("id", "entities")
 

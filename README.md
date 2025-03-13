@@ -31,7 +31,7 @@ Este proyecto implementa un pipeline de datos utilizando Apache Airflow, Spark y
 
 ### 2. Levantar el entorno con Docker
 ```bash
-astro dev start
+astro dev start --wait 2m
 ```
 Esto iniciará los servicios de Airflow, Spark y PostgreSQL en contenedores Docker.
 

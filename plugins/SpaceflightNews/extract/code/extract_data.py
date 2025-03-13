@@ -7,8 +7,14 @@ from datetime import datetime
 from SpaceflightNews.parameters import BASE_URL, OUTPUT_EXTRACT_PATH, RATE_LIMIT
 
 # Configuración de logging
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
-logger = logging.getLogger()
+logger = logging.getLogger("ExtractData")
+logger.setLevel(logging.INFO)
+file_handler = logging.FileHandler("spaceflight_news.log", mode='w')
+file_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+console_handler = logging.StreamHandler()
+console_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+logger.addHandler(file_handler)
+logger.addHandler(console_handler)
 
 
 def fetch_data(endpoint, page=1, limit=10, date=None):

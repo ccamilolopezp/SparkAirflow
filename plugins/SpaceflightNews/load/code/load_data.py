@@ -19,19 +19,21 @@ logger.addHandler(file_handler)
 logger.addHandler(console_handler)
 
 def read_csv(file_name, execution_date):
-    """Lee un archivo CSV ubicado en la ruta procesada según la fecha de ejecución."""
-    file_path = os.path.join(PROCESSED_DATA_PATH, execution_date, file_name)
-    if os.path.exists(file_path):
-        logger.info(f"Cargando archivo: {file_path}")
-        return pd.read_csv(file_path)
-    
-    logger.warning(f"No se encontró el archivo: {file_name}")
-    return None
+     """Lee un archivo CSV en un DataFrame de Pandas."""
+     folder_path = os.path.join(PROCESSED_DATA_PATH, execution_date, file_name)
+     if os.path.exists(folder_path) and os.path.isdir(folder_path):
+         files = [f for f in os.listdir(folder_path) if f.endswith('.csv')]
+         if files:
+             file_path = os.path.join(folder_path, files[0])
+             logger.info(f"Cargando archivo: {file_path}")
+             return pd.read_csv(file_path)
+     
+     logger.warning(f"Archivo no encontrado: {file_name}")
 
 def merge_dataframes(df_articles, df_sources, df_topics, df_sentiment):
     """Realiza la unión de los datos de artículos, fuentes, temas y análisis de sentimientos."""
-    if None in (df_articles, df_sources, df_topics, df_sentiment):
-        logger.error("No se pueden unir los datos debido a archivos faltantes.")
+    if df_articles is None or df_sources is None or df_topics is None:
+        logger.error("No se pueden cruzar los datos debido a archivos faltantes.")
         return None
     
     logger.info("Comenzando la unión de los conjuntos de datos.")
@@ -72,11 +74,30 @@ def load_processed_data(execution_date):
     df_sentiment = read_csv("sentiment_analysis.csv", execution_date)
     
     df_fact_article = merge_dataframes(df_articles, df_sources, df_topics, df_sentiment)
-    if df_fact_article is None:
-        return
-    
-    output_path = os.path.join(PROCESSED_DATA_PATH, execution_date, "documents_merged.csv")
+
+    output_dir = os.path.join(PROCESSED_DATA_PATH, execution_date, "documents_merged.csv")
+    os.makedirs(output_dir, exist_ok=True)  
+ 
+    output_path = os.path.join(output_dir, "documents_merged.csv")
     df_fact_article.to_csv(output_path, index=False)
+    logger.info(f"Archivo generado: {output_path}")
+
+def generate_daily_insights(execution_date):
+    df_fact_article = read_csv("documents_merged.csv", execution_date)
+    df_dim_source = read_csv("sources.csv", execution_date)
+    df_entities = read_csv("entities.csv", execution_date)
+
+    # Calcular importance_score
+    df_fact_article = calculate_importance(df_fact_article, df_dim_source)
+
+    df_fact_article = df_fact_article.merge(df_entities[['id', 'entities']], right_on="id", left_on="article_id", how="left")
+
+    # Guardar resultados
+    output_dir = os.path.join(PROCESSED_DATA_PATH, execution_date, "fact_articles.csv")
+    os.makedirs(output_dir, exist_ok=True)  
+    output_path = os.path.join(output_dir, "fact_articles.csv")
+    df_fact_article.to_csv(output_path, index=False)
+    
     logger.info(f"Archivo generado: {output_path}")
 
 def update_dashboards(execution_date):
@@ -87,7 +108,7 @@ def update_dashboards(execution_date):
     df_dim_source = read_csv("sources.csv", execution_date)
     df_topics = read_csv("topics.csv", execution_date)
     
-    if None in (df_fact_article, df_dim_source, df_topics):
+    if  df_fact_article is None or df_dim_source is None or df_topics is None:
         logger.error("No se pueden actualizar los dashboards debido a archivos faltantes.")
         return
     
