@@ -1,5 +1,7 @@
 # Spaceflight News Data Pipeline
 
+[DOCUMENTO_TECNICO.pdf](https://github.com/user-attachments/files/19221857/DOCUMENTO_TECNICO.pdf)
+
 ## Descripción
 Este proyecto implementa un pipeline de datos utilizando Apache Airflow, Spark y PostgreSQL para analizar tendencias en la industria espacial a partir de los datos de la API de Spaceflight News.
 
@@ -16,6 +18,9 @@ Este proyecto implementa un pipeline de datos utilizando Apache Airflow, Spark y
 - [PostgreSQL](https://www.postgresql.org/)
 - [Docker](https://www.docker.com/)
 - Python
+### Diagrama Arquitectura:
+[Diagrama Arquitectura.pdf](https://github.com/user-attachments/files/19221956/Diagrama.Arquitectura.pdf)
+![image](https://github.com/user-attachments/assets/80c46fa0-c04d-485a-bc6f-4fa8038df5b7)
 
 ## Instalación y configuración
 ### 1. Clonar el repositorio
@@ -63,6 +68,9 @@ Credenciales por defecto:
 
 ### 5. Ejecutar el DAG
 En la interfaz de Airflow, activar y ejecutar el DAG `spaceflight_news_pipeline` para iniciar el proceso ETL.
+
+![Imagen de WhatsApp 2025-03-12 a las 21 21 45_4b46d35b](https://github.com/user-attachments/assets/38546dc6-da8b-47a9-a2e3-a257b8ec42f6)
+
 
 ## Estructura del repositorio
 ```
@@ -142,3 +150,4 @@ Contact
 =======
 
 The Astronomer CLI is maintained with love by the Astronomer team. To report a bug or suggest a change, reach out to our support.
+
