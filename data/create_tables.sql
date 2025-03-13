@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS spacenews.dim_topic (
     category VARCHAR(255) NOT NULL
 );
 
--- Crear la tabla fact_article con particionamiento correcto
+-- Crear la tabla fact_article con particionamiento
 CREATE TABLE IF NOT EXISTS spacenews.fact_article (
     article_id INT,
     source_id INT NOT NULL,
@@ -32,27 +32,25 @@ CREATE TABLE IF NOT EXISTS spacenews.fact_article (
     published_at TIMESTAMP NOT NULL,
     sentiment_score FLOAT,
     importance_score FLOAT,
-    content TEXT,
     PRIMARY KEY (article_id, published_at),
     CONSTRAINT fk_fact_article_source FOREIGN KEY (source_id) REFERENCES spacenews.dim_news_source(source_id) ON DELETE CASCADE,
     CONSTRAINT fk_fact_article_topic FOREIGN KEY (topic_id) REFERENCES spacenews.dim_topic(topic_id) ON DELETE CASCADE
 )
 PARTITION BY RANGE (published_at);
 
--- Crear particiones mensuales dentro del esquema spacenews
 DO $$ 
 DECLARE 
+    year INT := 2025; -- CAMBIAR EL AÑO
     month INT;
     partition_name TEXT;
     start_date DATE;
     end_date DATE;
 BEGIN
     FOR month IN 1..12 LOOP
-        partition_name := 'fact_article_2024_' || LPAD(month::TEXT, 2, '0');
-        start_date := DATE '2024-01-01' + INTERVAL '1 month' * (month - 1);
+        partition_name := 'fact_article_' || year || '_' || LPAD(month::TEXT, 2, '0');
+        start_date := DATE (year || '-01-01') + INTERVAL '1 month' * (month - 1);
         end_date := start_date + INTERVAL '1 month';
 
-        -- Verificar si la partición ya existe
         IF NOT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = partition_name AND table_schema = 'spacenews') THEN
             EXECUTE FORMAT(
                 'CREATE TABLE spacenews.%I PARTITION OF spacenews.fact_article

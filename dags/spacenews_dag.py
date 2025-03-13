@@ -1,45 +1,44 @@
 from datetime import datetime, timedelta
 from airflow import DAG
 from airflow.operators.python import PythonOperator
-from SpaceflightNews.extract.code.extract_data import  extract_documents, get_api_info
+from SpaceflightNews.extract.code.extract_data import extract_documents, get_api_info
 from SpaceflightNews.load.code.load_data import load_processed_data, generate_daily_insights, update_dashboards
 from airflow.providers.apache.spark.operators.spark_submit import SparkSubmitOperator
 
+# Función para obtener la fecha de ejecución del DAG
+# Prioriza la fecha configurada manualmente en `dag_run.conf`, de lo contrario, usa la fecha programada
+
 def get_execution_date(**kwargs):
-    """ Obtiene la fecha de ejecución, priorizando la configurada manualmente. """
     return kwargs["dag_run"].conf.get("execution_date", kwargs["ds"])
 
+# Funciones de extracción de datos por tipo de documento
 def extract_articles(**kwargs):
-    execution_date = get_execution_date(**kwargs)
-    return extract_documents("articles", date=execution_date)
+    return extract_documents("articles", date=get_execution_date(**kwargs))
 
 def extract_blogs(**kwargs):
-    execution_date = get_execution_date(**kwargs)
-    return extract_documents("blogs", date=execution_date)
+    return extract_documents("blogs", date=get_execution_date(**kwargs))
 
 def extract_reports(**kwargs):
-    execution_date = get_execution_date(**kwargs)
-    return extract_documents("reports", date=execution_date)
+    return extract_documents("reports", date=get_execution_date(**kwargs))
 
 def extract_api_info():
     return get_api_info()
- 
+
+# Funciones para la carga y análisis de datos
 def load_processed_data_call(**kwargs):
-    execution_date = get_execution_date(**kwargs)
-    return load_processed_data(execution_date)
+    return load_processed_data(get_execution_date(**kwargs))
 
 def generate_daily_insights_call(**kwargs):
-    execution_date = get_execution_date(**kwargs)
-    return generate_daily_insights(execution_date)
+    return generate_daily_insights(get_execution_date(**kwargs))
 
 def update_dashboards_call(**kwargs):
-    execution_date = get_execution_date(**kwargs)
-    return update_dashboards(execution_date)
+    return update_dashboards(get_execution_date(**kwargs))
 
+# Función de alerta en caso de fallo
 def failure_alert(context):
     print(f"Task {context['task_instance'].task_id} ha fallado")
 
-# Definir argumentos por defecto del DAG
+# Configuración de los argumentos por defecto del DAG
 default_args = {
     'owner': 'airflow',
     'depends_on_past': False,
@@ -49,17 +48,17 @@ default_args = {
     'on_failure_callback': failure_alert
 }
 
+# Definición del DAG
 dag = DAG(
     'spacenews_pipeline',
     default_args=default_args,
     description='Pipeline de SpaceNews con extracción, procesamiento y análisis',
     schedule_interval=timedelta(days=1),
     catchup=False,
-    params={  
-        "execution_date": "{{ ds }}"
-    }
+    params={"execution_date": "{{ ds }}"}
 )
 
+# Tareas de extracción de datos
 extract_articles_task = PythonOperator(
     task_id='extract_articles',
     python_callable=extract_articles,
@@ -87,6 +86,7 @@ extract_api_info_task = PythonOperator(
     dag=dag
 )
 
+# Procesamiento en Spark
 clean_and_deduplicate_task = SparkSubmitOperator(
     task_id='clean_and_deduplicate',
     application='./include/scripts/clean_deduplicate.py',
@@ -132,13 +132,13 @@ identify_insights_task = SparkSubmitOperator(
     dag=dag
 )
 
+# Carga y análisis de datos
 load_processed_data_task = PythonOperator(
     task_id='load_processed_data',
     python_callable=load_processed_data_call,
     provide_context=True,
     dag=dag
 )
-
 
 generate_daily_insights_task = PythonOperator(
     task_id='generate_daily_insights',
@@ -150,11 +150,12 @@ generate_daily_insights_task = PythonOperator(
 update_dashboards_task = PythonOperator(
     task_id='update_dashboards',
     python_callable=update_dashboards_call,
+    provide_context=True,
     dag=dag
 )
 
-# Definir dependencias
-extract_api_info_task >>[extract_articles_task, extract_blogs_task, extract_reports_task]
+# Definir dependencias entre tareas
+extract_api_info_task >> [extract_articles_task, extract_blogs_task, extract_reports_task]
 [extract_articles_task, extract_blogs_task, extract_reports_task] >> clean_and_deduplicate_task
 clean_and_deduplicate_task >> [perform_sentiment_analysis_task, identify_topics_task, identify_sources_task, identify_insights_task]
 [perform_sentiment_analysis_task, identify_topics_task, identify_sources_task, identify_insights_task] >> load_processed_data_task

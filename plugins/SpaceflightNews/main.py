@@ -17,23 +17,7 @@ console_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(
 logger.addHandler(file_handler)
 logger.addHandler(console_handler)        
 
-if __name__ == "__main__":
-    all_extracted_data = []  # Lista para acumular todos los artículos
-
-    for endpoint in ["articles", "blogs", "reports"]:
-        logger.info(f"Extrayendo datos de {endpoint}...")
-        extracted_data = extract_documents(endpoint, 1, 10)
-        if extracted_data:
-            all_extracted_data.extend(extracted_data)  # Acumular datos en la lista
-
-        logger.info(f"Se obtuvieron {len(extracted_data)} registros de {endpoint}.")
-
-    # Obtener metadata de la API
-    api_info = get_api_info(1, 10)
-    logger.info(f"Información de la API: {api_info}")
-
-    if all_extracted_data:
-        analyze_articles_with_spark(all_extracted_data)
+if __name__ == "__main__":   
         
     print("\n=== Ejecutando pruebas unitarias ===\n")    
     unittest.TextTestRunner().run(unittest.TestLoader().loadTestsFromTestCase(Test_Extract_Data))
