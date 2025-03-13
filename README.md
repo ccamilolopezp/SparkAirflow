@@ -1,4 +1,104 @@
-Overview
+# Spaceflight News Data Pipeline
+
+## Descripción
+Este proyecto implementa un pipeline de datos utilizando Apache Airflow, Spark y PostgreSQL para analizar tendencias en la industria espacial a partir de los datos de la API de Spaceflight News.
+
+## Características principales
+- **Ingesta diaria** de artículos, blogs y reportes.
+- **Procesamiento con Spark** para limpieza, deduplicación, análisis de sentimiento y clasificación de artículos.
+- **Almacenamiento en PostgreSQL** siguiendo un modelo dimensional optimizado.
+- **Orquestación con Airflow** para la ejecución automática y programada del pipeline.
+- **Monitoreo y manejo de fallos** con logs detallados y alertas.
+
+## Tecnologías utilizadas
+- [Astro](https://docs.astronomer.io/) (Apache Airflow en contenedores)
+- [Apache Spark](https://spark.apache.org/)
+- [PostgreSQL](https://www.postgresql.org/)
+- [Docker](https://www.docker.com/)
+- Python
+
+## Instalación y configuración
+### 1. Clonar el repositorio
+```bash
+ git clone https://github.com/ccamilolopezp/SparkAirflow.git
+ cd SparkAirflow
+```
+
+### 2. Levantar el entorno con Docker
+```bash
+astro dev start
+```
+Esto iniciará los servicios de Airflow, Spark y PostgreSQL en contenedores Docker.
+
+### 3. Configurar la base de datos
+Antes de ejecutar el DAG, es necesario conectarse a la base de datos PostgreSQL que levanta Astro y ejecutar el script de creación de la base de datos.
+
+Puedes conectarte a PostgreSQL utilizando herramientas como:
+- **DBeaver**
+- **pgAdmin**
+- **psql (línea de comandos)**
+
+#### Credenciales de acceso (definidas en el Docker Compose de Astro):
+- **Host:** `localhost`
+- **Puerto:** `5432`
+- **Usuario:** `postgres`
+- **Contraseña:** `postgres`
+- **Base de datos:** `postgres`
+
+#### Ejecutar script de creación de esquema
+El archivo `schema.sql` se encuentra en la carpeta `data`. Una vez conectado a la base de datos, ejecutar:
+```sql
+\-- Abrir y ejecutar el script en el cliente SQL de tu elección
+\i data/schema.sql
+```
+
+### 4. Acceder a la interfaz de Airflow
+Una vez que el entorno esté corriendo, accede a la interfaz web de Airflow en:
+```
+http://localhost:8080
+```
+Credenciales por defecto:
+- **Usuario:** `admin`
+- **Contraseña:** `admin`
+
+### 5. Ejecutar el DAG
+En la interfaz de Airflow, activar y ejecutar el DAG `spaceflight_news_pipeline` para iniciar el proceso ETL.
+
+## Estructura del repositorio
+```
+SparkAirflow/
+│── dags/                      # Definición de DAGs de Airflow
+│   ├── spaceflight_news_dag.py
+│── scripts/                   # Scripts de procesamiento
+│   ├── extraction.py
+│   ├── transformation.py
+│   ├── loading.py
+│── data/                      # Datos de entrada y esquemas
+│   ├── schema.sql             # Script de creación de base de datos
+│── config/                    # Configuraciones adicionales
+│── Dockerfile                 # Configuración de imagen Docker
+│── requirements.txt           # Dependencias de Python
+│── README.md                  # Documentación del proyecto
+```
+
+## Flujo del pipeline
+1. **Extracción de datos** desde la API de Spaceflight News.
+2. **Limpieza y deduplicación** con Spark.
+3. **Clasificación de artículos** y análisis de sentimiento.
+4. **Almacenamiento en PostgreSQL** con modelo dimensional optimizado.
+5. **Generación de insights** y actualización de dashboards.
+
+## Consideraciones adicionales
+- Se implementó `ON CONFLICT` en PostgreSQL para manejar inserciones duplicadas.
+- El pipeline maneja reintentos y validaciones de datos.
+- Logs detallados en Airflow y almacenamiento en archivos locales.
+
+## Contacto
+Si tienes preguntas o sugerencias, no dudes en abrir un issue en el repositorio.
+
+=====
+
+Sobre ASTRO: Overview
 ========
 
 Welcome to Astronomer! This project was generated after you ran 'astro dev init' using the Astronomer CLI. This readme describes the contents of the project, as well as how to run Apache Airflow on your local machine.
