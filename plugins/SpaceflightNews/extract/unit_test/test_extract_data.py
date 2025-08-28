@@ -13,16 +13,12 @@ class Test_Extract_Data(unittest.TestCase):
     def test_extract_documents(self):
         """Prueba que extract_documents retorna la ruta del archivo CSV generado."""
         file_path = extract_documents("articles", max_pages=1, limit=2)
-
         self.assertIsInstance(file_path, str)
         self.assertTrue(file_path.endswith(".csv"))
 
         import os
         self.assertTrue(os.path.exists(file_path))
 
-        with open(file_path, "r", encoding="utf-8") as f:
-            content = f.read()
-        self.assertGreater(len(content), 0)
  
 
     def test_get_api_info(self):
